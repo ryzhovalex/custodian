@@ -1,16 +1,38 @@
-import { Response, Request, Router } from "express";
+import { Express, Response, Request, IRoute } from "express";
+import ConstructingViewError from "./ConstructingViewError";
 
 class View {
-  router: Router;
+  // TODO:
+  //  Wrap route in logging decorators which log request
+  //  and responses
 
-  constructor() {
-    this.router = Router();
-
-    this.router.get('/', (request: Request, response: Response) => this.get);
-    this.router.post('/', (request: Request, response: Response) => this.get);
-    this.router.put('/', (request: Request, response: Response) => this.get);
-    this.router.patch('/', (request: Request, response: Response) => this.get);
-    this.router.delete('/', (request: Request, response: Response) => this.get);
+  constructor(
+      // Some strange typings for express Route, so leave it "any"
+      protected route: any,
+      protected enabledMethodNames: string[]) {
+    // Assign yourself to express app for every defined method
+    for (let methodName of this.enabledMethodNames) {
+      switch (methodName.toLowerCase()) {
+        case "get":
+          this.route = this.route.get(this.get);
+          break;
+        case "post":
+          this.route = this.route.post(this.post);
+          break;
+        case "put":
+          this.route = this.route.put(this.put);
+          break;
+        case "patch":
+          this.route = this.route.patch(this.patch);
+          break;
+        case "delete":
+          this.route = this.route.delete(this.delete);
+          break;
+        default:
+          throw new ConstructingViewError(
+            `Unrecognized enabled method name ${methodName}`)
+      }
+    }
   }
 
   protected get(request: Request, response: Response): any {

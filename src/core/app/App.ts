@@ -5,38 +5,46 @@ import errorhandler from 'errorhandler';
 import AppArgs from './AppArgs';
 import { Router } from 'express';
 import DummyView from '../dummy/DummyView';
+import View from '../view/View';
 
 class App {
-  protected app: Express;
+  protected express: Express;
   protected isProduction: boolean;
   protected mongoDbUri: string;
+  protected views: View[] = [];
 
   constructor(args: AppArgs) {
     this.isProduction = args.isProduction;
     this.mongoDbUri = args.mongoDbUri;
 
-    this.app = express();
+    this.express = express();
 
-    this.app.use(cors());
+    // Init views
+    // This should be placed right here in code right after express init,
+    // because... i don't know why
+    this.views.push(
+      new DummyView(this.express.route("/dummy"), ["GET", "POST"]));
+
+    this.express.use(cors());
 
     if (!this.isProduction) {
-      this.app.use(errorhandler());
+      this.express.use(errorhandler());
     }
 
     mongoose.connect(this.mongoDbUri);
 
-    if(this.isProduction) {
+    if (!this.isProduction) {
       mongoose.set("debug", true);
     }
 
     // Catch error and forward to error handler
-    this.app.use((request: any, response: any, next: any) => {
+    this.express.use((request: any, response: any, next: any) => {
       let error = new Error("Not found");
       next(error);
     });
 
     // Error handler
-    this.app.use((error: any, request: any, response: any, next: any) => {
+    this.express.use((error: any, request: any, response: any, next: any) => {
       console.log(error.stack);
       response.status(error.status || 500);
 
@@ -58,12 +66,10 @@ class App {
       }
     });
 
-    // Add routes
-    this.app.use('/dummy', new DummyView().router);
   }
 
   run(port: number): void {
-    this.app.listen(port, () => {
+    this.express.listen(port, () => {
       console.log(`Server is running at http://localhost:${port}`);
     });
   }

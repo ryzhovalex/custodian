@@ -1,13 +1,16 @@
-import { Response, Request } from "express";
+import { Response, Request, Express, IRoute } from "express";
 import View from "../view/View";
 
 class DummyView extends View {
-  constructor() {
-    super();
+  constructor(
+      route: any,
+      enabledMethodNames: string[]) {
+    super(route, enabledMethodNames);
   }
-
+  
   protected get(request: Request, response: Response): any {
-    throw new Error("Not implemented");
+    console.log(request);
+    response.send("Hello!");
   }
 }
 
