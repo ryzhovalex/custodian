@@ -1,0 +1,39 @@
+{
+  "name": "custodian",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node dist/index.js",
+    "dev": "concurrently 'npx tsc --watch' 'nodemon -q dist/index.js'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryzhovalex/custodian.gitmk.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ryzhovalex/custodian.gitmk/issues"
+  },
+  "homepage": "https://github.com/ryzhovalex/custodian.gitmk#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.2",
+    "errorhandler": "^1.5.1",
+    "express": "^4.18.1",
+    "mongoose": "^6.6.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.12",
+    "@types/errorhandler": "^1.5.0",
+    "@types/express": "^4.17.14",
+    "@types/node": "^18.7.18",
+    "concurrently": "^7.4.0",
+    "nodemon": "^2.0.20",
+    "typescript": "^4.8.3"
+  }
+}
