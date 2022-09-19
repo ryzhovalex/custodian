@@ -59,7 +59,7 @@ class App {
     });
 
     // Add routes
-    this.app.use('/dummy', DummyView.router);
+    this.app.use('/dummy', new DummyView().router);
   }
 
   run(port: number): void {
