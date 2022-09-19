@@ -11,6 +11,9 @@ const isProduction: boolean =
 const mongoDbUri: string =
   process.env.CUSTODIAN_MONGO_DB_URI || "mongodb://localhost/conduit"
 
-let app: App = new App(isProduction, mongoDbUri);
+let app: App = new App({
+  isProduction: isProduction,
+  mongoDbUri: mongoDbUri
+});
 
 app.run(parseInt(port));

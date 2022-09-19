@@ -3,6 +3,8 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import errorhandler from 'errorhandler';
 import AppArgs from './AppArgs';
+import { Router } from 'express';
+import DummyView from '../dummy/DummyView';
 
 class App {
   private app: Express;
@@ -28,18 +30,36 @@ class App {
     }
 
     // Catch error and forward to error handler
-    this.app.use((req, res, next) => {
+    this.app.use((request: any, response: any, next: any) => {
       let error = new Error("Not found");
       next(error);
     });
 
-    // Init development error handler to print stacktrace
-    if (!this.isProduction) {
-      this.app.use((err, req, res, next) => {
-        console.log(err.stack);
-        res.status(err.status || 500);
-      });
-    }
+    // Error handler
+    this.app.use((error: any, request: any, response: any, next: any) => {
+      console.log(error.stack);
+      response.status(error.status || 500);
+
+      // Don't return stacktraces to client in production mode
+      if (this.isProduction) {
+        response.json({
+          "errors": {
+            message: error.message,
+            error: {}
+          }
+        });
+      } else {
+        response.json({
+          "errors": {
+            message: error.message,
+            error: error
+          }
+        });
+      }
+    });
+
+    // Add routes
+    this.app.use('/dummy', DummyView.router);
   }
 
   run(port: number): void {
