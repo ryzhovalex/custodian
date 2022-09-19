@@ -7,9 +7,9 @@ import { Router } from 'express';
 import DummyView from '../dummy/DummyView';
 
 class App {
-  private app: Express;
-  private isProduction: boolean;
-  private mongoDbUri: string;
+  protected app: Express;
+  protected isProduction: boolean;
+  protected mongoDbUri: string;
 
   constructor(args: AppArgs) {
     this.isProduction = args.isProduction;

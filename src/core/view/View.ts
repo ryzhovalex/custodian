@@ -13,23 +13,23 @@ class View {
     this.router.delete('/', (request: Request, response: Response) => this.get);
   }
 
-  private get(request: Request, response: Response): any {
+  protected get(request: Request, response: Response): any {
     throw new Error("Not implemented");
   }
 
-  private post(request: Request, response: Response): any {
+  protected post(request: Request, response: Response): any {
     throw new Error("Not implemented");
   }
 
-  private put(request: Request, response: Response): any {
+  protected put(request: Request, response: Response): any {
     throw new Error("Not implemented");
   }
 
-  private patch(request: Request, response: Response): any {
+  protected patch(request: Request, response: Response): any {
     throw new Error("Not implemented");
   }
 
-  private delete(request: Request, response: Response): any {
+  protected delete(request: Request, response: Response): any {
     throw new Error("Not implemented");
   }
 }

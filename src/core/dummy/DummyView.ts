@@ -6,7 +6,7 @@ class DummyView extends View {
     super();
   }
 
-  private get(request: Request, response: Response): any {
+  protected get(request: Request, response: Response): any {
     throw new Error("Not implemented");
   }
 }
