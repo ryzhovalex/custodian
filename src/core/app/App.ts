@@ -8,6 +8,7 @@ import DummyView from '../dummy/DummyView';
 import View from '../view/View';
 
 class App {
+  isReady: boolean = false;
   protected express: Express;
   protected isProduction: boolean;
   protected mongoDbUri: string;
@@ -66,6 +67,7 @@ class App {
       }
     });
 
+    this.isReady = true;
   }
 
   run(port: number): void {
