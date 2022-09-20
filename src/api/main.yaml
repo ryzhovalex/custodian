@@ -1,0 +1,11 @@
+openapi: '3.0.2'
+info:
+  title: Custodian
+  version: '0.0.0'
+paths:
+  /files:
+    get:
+      description: Get all files
+      responses:
+        '200':
+          description: OK

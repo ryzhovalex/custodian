@@ -1,0 +1,19 @@
+name:
+  type: string
+  example: My file
+stringId:
+  type: string
+  example:
+
+file:
+  type: object
+  properties:
+    file:
+      $ref: "#/fileInner"
+fileInner:
+  type: object
+  properties:
+    name: "#/name"
+    stringId: "#/stringId"
+
+
