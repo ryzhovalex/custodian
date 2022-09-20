@@ -1,6 +1,6 @@
 interface AppArgs {
   isProduction: boolean;
-  mongoDbUri: string;
+  mongoDbUri?: string;
 }
 
 export = AppArgs;

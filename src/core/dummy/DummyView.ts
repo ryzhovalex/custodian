@@ -9,8 +9,7 @@ class DummyView extends View {
   }
   
   protected get(request: Request, response: Response): any {
-    console.log(request);
-    response.send("Hello!");
+    response.send({"message": "Hello!"});
   }
 }
 

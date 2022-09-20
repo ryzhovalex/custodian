@@ -9,14 +9,19 @@ import View from '../view/View';
 
 class App {
   isReady: boolean = false;
-  protected express: Express;
+  express: Express;
   protected isProduction: boolean;
   protected mongoDbUri: string;
   protected views: View[] = [];
 
   constructor(args: AppArgs) {
     this.isProduction = args.isProduction;
-    this.mongoDbUri = args.mongoDbUri;
+
+    if (args.mongoDbUri === undefined) {
+      this.mongoDbUri = "mongodb://localhost/conduit"
+    } else {
+      this.mongoDbUri = args.mongoDbUri;
+    }
 
     this.express = express();
 

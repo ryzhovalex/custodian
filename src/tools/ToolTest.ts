@@ -9,7 +9,7 @@ _chai.should();
 _chai.expect;
 
 
-@suite class ToolTest extends Test {
+@suite class makeidTest extends Test {
   makeid: () => string = makeid;
   out: string;
 
@@ -17,7 +17,7 @@ _chai.expect;
     this.out = makeid();
   }
 
-  @test "App is created" () {
+  @test "Output is string" () {
     expect(this.out).to.be.string;
   }
 }
