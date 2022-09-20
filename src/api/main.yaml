@@ -9,6 +9,10 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "file.yaml#/files"
     post:
       summary: Add a file
       description: >

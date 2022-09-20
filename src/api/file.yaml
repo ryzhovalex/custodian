@@ -16,11 +16,6 @@ newFileMultipartObject:
     fileObject:
       $ref: "#/fileObject"
 
-file:
-  type: object
-  properties:
-    file:
-      $ref: "#/fileInner"
 fileInner:
   type: object
   properties:
@@ -28,6 +23,20 @@ fileInner:
       $ref: "#/name"
     stringId:
       $ref: "#/stringId"
+file:
+  type: object
+  properties:
+    file:
+      $ref: "#/fileInner"
+filesInner:
+  type: array
+  items:
+    $ref: "#/file"
+files:
+  type: object
+  properties:
+    files:
+      $ref: "#/filesInner"
 
 newFileRequestBody:
   required: true

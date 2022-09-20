@@ -6,31 +6,49 @@ import { Router } from 'express';
 import DummyView from '../dummy/DummyView';
 import View from '../view/View';
 import Mongo from '../mongo/Mongo';
+import Service from '../service/Service';
+import FileService from '../file/FileService';
+import FilesView from '../file/FilesView';
 
-class AppService {
+class AppService extends Service {
   isReady: boolean = false;
   express: Express;
   mongo: Mongo;
   protected isProduction: boolean;
-  protected mongoDbUri: string;
+  protected services: Service[] = [];
   protected views: View[] = [];
 
   constructor(args: AppArgs) {
+    super();
     this.isProduction = args.isProduction;
 
+    let mongoDbUri: string;
     if (args.mongoDbUri === undefined) {
-      this.mongoDbUri = "mongodb://localhost:27017/custodian"
+      mongoDbUri = "mongodb://localhost:27017/custodian"
     } else {
-      this.mongoDbUri = args.mongoDbUri;
+      mongoDbUri = args.mongoDbUri;
     }
 
     this.express = express();
+
+    // Add middleware to parse the post data of the body (handle form-data).
+    // Support both JSON-encoded (json()) and url encoded (urlencoded()) bodies
+    // https://stackoverflow.com/a/12008719
+    this.express.use(express.json())
+    this.express.use(express.urlencoded())
 
     // Init views
     // This should be placed right here in code right after express init,
     // because... i don't know why
     this.views.push(
       new DummyView(this.express.route("/dummy"), ["GET", "POST"]));
+    this.views.push(
+      new FilesView(this.express.route("/files"), ["GET", "POST"]));
+
+    // TMP
+    const multer = require("multer");
+    this.express.post("/profile", multer({dest: "uploads/1/"}).single("fileObject"), (req, res) => {console.log("HELLO:", req.file, req.files, req.body)});
+    //
 
     this.express.use(cors());
 
@@ -38,7 +56,12 @@ class AppService {
       this.express.use(errorhandler());
     }
 
-    this.mongo = new Mongo(this.mongoDbUri, this.isProduction);
+    let hasToMaintainDatabaseConnection: boolean =
+      args.hasToMaintainDatabaseConnection === undefined
+        ? true : args.hasToMaintainDatabaseConnection;
+    this.mongo = new Mongo(
+      mongoDbUri, this.isProduction, hasToMaintainDatabaseConnection
+    );
 
     // Catch error and forward to error handler
     this.express.use((request: any, response: any, next: any) => {
@@ -76,6 +99,11 @@ class AppService {
     this.express.listen(port, () => {
       console.log(`Server is running at http://localhost:${port}`);
     });
+  }
+
+  protected initServices(): void {
+    // Init services for now manually
+    this.services.push(new FileService());
   }
 }
 

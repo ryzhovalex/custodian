@@ -1,10 +1,25 @@
 import mongoose from "mongoose";
 
 class Mongo {
-  constructor(public uri: string, protected isProduction: boolean) {
+  /**
+   * Model representing mongodb database interactions.
+   * 
+   * @param uri
+   * @param isProduction
+   * @param hasToMaintainConnection
+   */
+
+  constructor(
+      public uri: string,
+      protected isProduction: boolean,
+      public hasToMaintainConnection: boolean
+    ) {
     this.connect();
 
-    mongoose.connection.on("disconnected", this.connect);
+    // Maintain connection
+    if (this.hasToMaintainConnection) {
+      mongoose.connection.on("disconnected", this.connect);
+    }
 
     if (!this.isProduction) {
       mongoose.set("debug", true);
@@ -12,23 +27,25 @@ class Mongo {
   }
 
   connect() {
+    console.info(`[Mongo] Connecting ${this.uri}`);
     mongoose
       .connect(this.uri)
       .then(() => {
-        console.info(`Connected to ${this.uri}`);
+        console.info(`[Mongo] Connected to ${this.uri}`);
       })
       .catch((error: any) => {
-        console.error("Error connection to mongodb: ", error);
+        console.error("[Mongo] Error connection to mongodb: ", error);
       });
   }
 
   disconnect() {
     mongoose.disconnect()
       .then(() => {
-        console.info(`Disconnected from ${this.uri}`);
+        console.info(`[Mongo] Disconnected from ${this.uri}`);
       })
       .catch((error: any) => {
-        console.error("Error during disconnecting from mongodb: ", error);
+        console.error(
+          "[Mongo] Error during disconnecting from mongodb: ", error);
       });
   }
 }
