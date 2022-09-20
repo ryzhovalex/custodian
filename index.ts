@@ -1,4 +1,4 @@
-import App from './src/core/app/App';
+import AppService from './src/core/app/AppService';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -11,7 +11,7 @@ const isProduction: boolean =
 const mongoDbUri: string | undefined =
   process.env.CUSTODIAN_MONGO_DB_URI || undefined
 
-let app: App = new App({
+let app: AppService = new AppService({
   isProduction: isProduction,
   mongoDbUri: mongoDbUri
 });

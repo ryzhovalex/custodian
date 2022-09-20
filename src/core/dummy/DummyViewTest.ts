@@ -4,7 +4,7 @@ import * as _chai from "chai";
 import {expect} from "chai";
 import Test from "../../tests/Test";
 import chaiHttp from "chai-http";
-import App from "../app/App";
+import AppService from "../app/AppService";
 import DummyView from "./DummyView";
 import { describe, it } from "node:test";
 import chai from "chai";
@@ -14,10 +14,10 @@ _chai.expect;
 _chai.use(chaiHttp);
 
 @suite class DummyViewTest extends Test {
-  app: App;
+  app: AppService;
 
   before() {
-    this.app = new App({ isProduction: false});
+    this.app = new AppService({ isProduction: false});
   }
 
   @test "GET" () {

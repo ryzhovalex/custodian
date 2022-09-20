@@ -7,7 +7,7 @@ import DummyView from '../dummy/DummyView';
 import View from '../view/View';
 import Mongo from '../mongo/Mongo';
 
-class App {
+class AppService {
   isReady: boolean = false;
   express: Express;
   mongo: Mongo;
@@ -19,7 +19,7 @@ class App {
     this.isProduction = args.isProduction;
 
     if (args.mongoDbUri === undefined) {
-      this.mongoDbUri = "mongodb://localhost/custodian"
+      this.mongoDbUri = "mongodb://localhost:27017/custodian"
     } else {
       this.mongoDbUri = args.mongoDbUri;
     }
@@ -79,7 +79,7 @@ class App {
   }
 }
 
-export = App;
+export = AppService;
 
 // app.get('/', (req: Request, res: Response) => {
 //   res.send('Express + TypeScript Server');
