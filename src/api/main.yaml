@@ -5,7 +5,32 @@ info:
 paths:
   /files:
     get:
-      description: Get all files
+      summary: Get all files
       responses:
         '200':
           description: OK
+    post:
+      summary: Add a file
+      description: >
+        Add a file from multipart data and return its json representation
+      requestBody:
+        $ref: "file.yaml#/newFileRequestBody"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "file.yaml#/file"
+  /files/{stringId}:
+    get:
+      summary: Get file by its string identifier
+      parameters:
+        - $ref: "file.yaml#/stringIdPath"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "file.yaml#/file"

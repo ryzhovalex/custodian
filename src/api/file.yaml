@@ -1,9 +1,20 @@
 name:
   type: string
-  example: My file
+  # example: My file
 stringId:
   type: string
-  example:
+  example: Xu6aUqmZ3mhQWFk6vG0EhYLAU
+fileObject:
+  type: string
+  format: binary
+
+newFileMultipartObject:
+  type: object
+  properties:
+    name:
+      $ref: "#/name"
+    fileObject:
+      $ref: "#/fileObject"
 
 file:
   type: object
@@ -13,7 +24,30 @@ file:
 fileInner:
   type: object
   properties:
-    name: "#/name"
-    stringId: "#/stringId"
+    name:
+      $ref: "#/name"
+    stringId:
+      $ref: "#/stringId"
+
+newFileRequestBody:
+  required: true
+  content:
+    multipart/form-data:
+      schema:
+        $ref: "file.yaml#/newFileMultipartObject"
+
+stringIdPath:
+  in: path
+  required: true
+  name: stringId
+  description: String identifier of the file
+  schema:
+    $ref: "#/stringId"
 
 
+
+
+
+
+
+      
