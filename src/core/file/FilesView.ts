@@ -16,7 +16,7 @@ class FilesView extends View {
       request: Request,
       response: Response) {
     console.log(
-      "[FilesView]",
+      "[FilesView] request headers/body/file/files",
       request.headers,
       request.body,
       request.file,

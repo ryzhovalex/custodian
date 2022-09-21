@@ -47,7 +47,7 @@ class AppService extends Service {
 
     // TMP
     const multer = require("multer");
-    this.express.post("/profile", multer({dest: "uploads/1/"}).single("fileObject"), (req, res) => {console.log("HELLO:", req.file, req.files, req.body)});
+    this.express.post("/profile", multer({dest: "uploads/1/"}).single("fileObject"), (req, res) => {console.log("[TmpView] request file/files/body", req.file, req.files, req.body)});
     //
 
     this.express.use(cors());

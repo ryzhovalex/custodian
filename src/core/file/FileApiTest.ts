@@ -31,7 +31,7 @@ import path = require("path");
       .post("/files")
       .attach("fileObject", fs.readFileSync(sampleFilePath), fileName)
       .then((response: any) => {
-        console.log("[FileApiTest]", response.body);
+        console.log("[FileApiTest] response:body:", response.body);
       });
 
     // fs.readFile(
