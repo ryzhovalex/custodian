@@ -1,23 +1,24 @@
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import errorhandler from 'errorhandler';
-import AppArgs from './AppArgs';
+import AppArgs from '../core/CoreArgs';
 import View from '../view/View';
 import Mongo from '../mongo/Mongo';
-import Service from '../service/Service';
-import FileService from '../file/FileService';
-import FilesView from '../file/FilesView';
+import Service from '../core/service/Service';
+import FileService from '../core/file/FileService';
+import FilesView from '../core/file/FilesView';
 import ViewBuilder from '../view/ViewBuilder';
 import VIEW_SPECS from '../view/VIEW_SPECS';
 
-class AppService extends Service {
-  isReady: boolean = false;
+export default class AppService extends Service {
   express: Express;
-  mongo: Mongo;
+
+  protected serviceBuilder:
+  protected viewBuilder: ViewBuilder;
+
   protected isProduction: boolean;
   protected services: Service[] = [];
   protected views: View[] = [];
-  protected viewBuilder: ViewBuilder;
 
   constructor(args: AppArgs) {
     super();
@@ -37,6 +38,8 @@ class AppService extends Service {
     // https://stackoverflow.com/a/12008719
     this.express.use(express.json())
     this.express.use(express.urlencoded())
+
+    // Init services
 
     // Init views
     // This should be placed right here in code right after express init,
@@ -96,18 +99,4 @@ class AppService extends Service {
       console.log(`[App] Server is running at http://localhost:${port}`);
     });
   }
-
-  protected initServices(): void {
-    // Init services for now manually
-    this.services.push(new FileService());
-  }
-
-  protected initViews(): void {
-  }
 }
-
-export = AppService;
-
-// app.get('/', (req: Request, res: Response) => {
-//   res.send('Express + TypeScript Server');
-// });

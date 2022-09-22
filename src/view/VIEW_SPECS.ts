@@ -1,5 +1,5 @@
 import FilesView from "../file/FilesView";
-import ViewSpec from "./ViewSpec";
+import ViewSpec from "../core/builder/spec/ViewSpec";
 
 const VIEW_SPECS: ViewSpec[] = [
   {

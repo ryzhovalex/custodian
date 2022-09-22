@@ -16,20 +16,17 @@ newFileMultipartObject:
     fileObject:
       $ref: "#/fileObject"
 
-fileInner:
+file:
   type: object
   properties:
     id:
       $ref: "common.yaml#/id"
+    type:
+      $ref: "common.yaml#/type"
     name:
       $ref: "#/name"
     stringId:
       $ref: "#/stringId"
-file:
-  type: object
-  properties:
-    file:
-      $ref: "#/fileInner"
 filesInner:
   type: array
   items:

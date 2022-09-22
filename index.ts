@@ -1,4 +1,4 @@
-import AppService from './src/core/app/AppService';
+import AppService from './src/app/AppService';
 import dotenv from 'dotenv';
 
 dotenv.config();
