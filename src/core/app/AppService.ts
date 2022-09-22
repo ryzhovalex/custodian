@@ -2,13 +2,13 @@ import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import errorhandler from 'errorhandler';
 import AppArgs from './AppArgs';
-import { Router } from 'express';
-import DummyView from '../dummy/DummyView';
 import View from '../view/View';
 import Mongo from '../mongo/Mongo';
 import Service from '../service/Service';
 import FileService from '../file/FileService';
 import FilesView from '../file/FilesView';
+import ViewBuilder from '../view/ViewBuilder';
+import VIEW_SPECS from '../view/VIEW_SPECS';
 
 class AppService extends Service {
   isReady: boolean = false;
@@ -17,6 +17,7 @@ class AppService extends Service {
   protected isProduction: boolean;
   protected services: Service[] = [];
   protected views: View[] = [];
+  protected viewBuilder: ViewBuilder;
 
   constructor(args: AppArgs) {
     super();
@@ -40,15 +41,10 @@ class AppService extends Service {
     // Init views
     // This should be placed right here in code right after express init,
     // because... i don't know why
-    this.views.push(
-      new DummyView(this.express.route("/dummy"), ["GET", "POST"]));
-    this.views.push(
-      new FilesView(this.express.route("/files"), ["GET", "POST"]));
-
-    // TMP
-    const multer = require("multer");
-    this.express.post("/profile", multer({dest: "uploads/1/"}).single("fileObject"), (req, res) => {console.log("[TmpView] request file/files/body", req.file, req.files, req.body)});
-    //
+    this.viewBuilder = new ViewBuilder({
+      express: this.express,
+      viewSpecs: VIEW_SPECS
+    }); 
 
     this.express.use(cors());
 
@@ -97,13 +93,16 @@ class AppService extends Service {
 
   run(port: number): void {
     this.express.listen(port, () => {
-      console.log(`Server is running at http://localhost:${port}`);
+      console.log(`[App] Server is running at http://localhost:${port}`);
     });
   }
 
   protected initServices(): void {
     // Init services for now manually
     this.services.push(new FileService());
+  }
+
+  protected initViews(): void {
   }
 }
 

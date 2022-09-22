@@ -1,26 +1,26 @@
 import { Request, Response } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import { ParsedQs } from "qs";
 import View from "../view/View";
 
 class FilesView extends View {
-  constructor(route: any, enabledMethodNames: string[]) {
-    super(route, enabledMethodNames);
+  constructor() {
+    super();
   }
 
-  protected get(request: Request, response: Response) {
+  get(request: Request, response: Response) {
 
   }
 
-  protected post(
+  post(
       request: Request,
       response: Response) {
     console.log(
-      "[FilesView] request headers/body/file/files",
+      "[FilesView] request headers/body/file/files/fileJsonified",
       request.headers,
       request.body,
       request.file,
-      request.files);
+      request.files,
+      JSON.stringify(request.file)
+    );
     response.send({"message": "Hello!"});
   }
 }
