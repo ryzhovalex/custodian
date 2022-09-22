@@ -11,10 +11,6 @@ class ViewBuilder {
 
   protected express: Express;
   protected viewSpecs: ViewSpec[];
-
-  // Directory where multer will save multipart attachments
-  protected multipartUploadDir: string = "uploads/";
-  protected isMulterEnabled: boolean = false;
   
   constructor(args: ViewBuilderArgs) {
     // NOTE:
@@ -39,12 +35,16 @@ class ViewBuilder {
       switch (methodName.toLowerCase()) {
         case "get":
           handlers.push(spec.view.get);
+          this.express.get(
+            spec.route,
+            ...handlers
+          );
           break;
         case "post":
           // Add multipart/form-data handlers by default for post, it should be
           // pushed before view's main handler method
           // https://github.com/expressjs/multer
-          if (this.isMulterEnabled) {
+          if (spec.multipartUploadDir !== undefined) {
             // FIXME:
             //    Multer "single()" option is temporary hardcoded since i need
             //    only this one
@@ -55,26 +55,41 @@ class ViewBuilder {
           }
 
           handlers.push(spec.view.post);
+
+          this.express.post(
+            spec.route,
+            ...handlers
+          );
           break;
         case "put":
           handlers.push(spec.view.put);
+          this.express.put(
+            spec.route,
+            ...handlers
+          );
           break;
         case "patch":
           handlers.push(spec.view.patch);
+          this.express.patch(
+            spec.route,
+            ...handlers
+          );
           break;
         case "delete":
           handlers.push(spec.view.delete);
+          this.express.delete(
+            spec.route,
+            ...handlers
+          );
           break;
         default:
           throw new ConstructingViewError(
             `Unrecognized enabled method name ${methodName}`)
       }
-
-      this.express.post(
-        spec.route,
-        ...handlers
-      );
     }
+    // TMP
+    // this.express.post("/profile", (req: any, res: any) => {console.log(1)})
+    // console.log("[ViewBuilder] express routes:", this.express.routes)
   }
 }
 
