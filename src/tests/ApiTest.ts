@@ -1,5 +1,5 @@
 import Test from "./Test";
-import AppService from "../app/AppService";
+import AppService from "../App";
 import {expect} from "chai";
 import chaiHttp from "chai-http";
 import * as _chai from "chai";

@@ -2,19 +2,18 @@ import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import errorhandler from 'errorhandler';
 import AppArgs from '../core/CoreArgs';
-import View from '../view/View';
-import Mongo from '../mongo/Mongo';
+import View from './View';
+import Mongo from './Mongo';
 import Service from '../core/service/Service';
 import FileService from '../core/file/FileService';
 import FilesView from '../core/file/FilesView';
 import ViewBuilder from '../view/ViewBuilder';
-import VIEW_SPECS from '../view/VIEW_SPECS';
+import VIEW_SPECS from './VIEW_SPECS';
 
-export default class AppService extends Service {
+export default class App {
   express: Express;
 
   protected serviceBuilder:
-  protected viewBuilder: ViewBuilder;
 
   protected isProduction: boolean;
   protected services: Service[] = [];

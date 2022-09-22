@@ -1,5 +1,3 @@
-import Model, { isModel } from "../../model/Model";
-
 export default interface File extends Model {
   name: string,
   stringId: string
