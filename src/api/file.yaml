@@ -1,6 +1,6 @@
 name:
   type: string
-  # example: My file
+  example: My file
 stringId:
   type: string
   example: Xu6aUqmZ3mhQWFk6vG0EhYLAU
@@ -19,6 +19,8 @@ newFileMultipartObject:
 fileInner:
   type: object
   properties:
+    id:
+      $ref: "common.yaml#/id"
     name:
       $ref: "#/name"
     stringId:
