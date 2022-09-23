@@ -38,3 +38,16 @@ paths:
             application/json:
               schema:
                 $ref: "file.yaml#/file"
+  /share/{stringId}:
+    get:
+      summary: Get shared file object by string identifier
+      parameters:
+        - $ref: "file.yaml#/stringIdPath"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: number
+                format: binary

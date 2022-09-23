@@ -1,15 +1,18 @@
 import {suite, test} from "@testdeck/mocha";
 import chai, { expect } from "chai";
-import ApiTest from "../../tests/ApiTest";
+import ApiTest from "../tests/ApiTest";
 import fs = require("fs");
 import path = require("path");
-import File, { isFile } from "./File";
+import { File, isFile } from "./File";
 import { SuperAgentRequest } from "superagent";
-import FileService from "./FileService";
 
 @suite class FileApiTest extends ApiTest {
+  sampleFilePath: string = path.join(
+    __dirname, "../tests/sample.jpg");
+  fileName: string = "sample";
+
   @test "Get all files" (done: any) {
-    chai.request(this.appService.express)
+    chai.request(this.core.express)
       .get("/files")
       .end((error: any, response: any) => {
         expect(response.body).has.key("files");
@@ -26,32 +29,26 @@ import FileService from "./FileService";
   }
 
   @test "Add a file" (done: any) {
-    let sampleFilePath: string = path.join(
-      __dirname, "../../tests/sample.jpg");
-
-    let fileName: string = "sample";
-
     // How to attach files in chai http within testdeck:
     // https://github.com/chaijs/chai-http/issues/168#issuecomment-353721847
-    chai.request(this.appService.express)
+    chai.request(this.core.express)
       .post("/files")
-      .attach("fileObject", fs.readFileSync(sampleFilePath), fileName)
+      .attach(
+        "fileObject", fs.readFileSync(this.sampleFilePath), this.fileName
+      )
       .end((error: any, response: any) => {
         expect(isFile(response.body)).to.be.true;
-        expect(response.body.name).equals(fileName);
+        expect(response.body.name).equals(this.fileName);
         done();
       });
   }
 
   @test "Add a file, then get it" (done: any) {
-    let sampleFilePath: string = path.join(
-      __dirname, "../../tests/sample.jpg");
-
     let fileName: string = "sample";
 
-    chai.request(this.appService.express)
+    chai.request(this.core.express)
       .post("/files")
-      .attach("fileObject", fs.readFileSync(sampleFilePath), fileName)
+      .attach("fileObject", fs.readFileSync(this.sampleFilePath), fileName)
       .end((error: any, response: any) => {
         expect(isFile(response.body)).to.be.true;
         expect(response.body.name).equals(fileName);
@@ -68,7 +65,7 @@ import FileService from "./FileService";
   }
 
   protected getFilesStringId(stringId: string): SuperAgentRequest {
-    return chai.request(this.appService.express)
+    return chai.request(this.core.express)
       .get(`/files/${stringId}`)
   }
 }

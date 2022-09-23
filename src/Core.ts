@@ -1,26 +1,21 @@
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import errorhandler from 'errorhandler';
-import AppArgs from '../core/CoreArgs';
-import View from './View';
 import Mongo from './Mongo';
-import Service from '../core/service/Service';
-import FileService from '../core/file/FileService';
-import FilesView from '../core/file/FilesView';
-import ViewBuilder from '../view/ViewBuilder';
-import VIEW_SPECS from './VIEW_SPECS';
+import { FilesStringIdView, FilesView, ShareView } from './file/File';
 
-export default class App {
+export interface CoreArgs {
+  isProduction: boolean;
+  mongoDbUri?: string;
+  hasToMaintainDatabaseConnection?: boolean;
+}
+
+export default class Core {
   express: Express;
-
-  protected serviceBuilder:
-
+  mongo: Mongo;
   protected isProduction: boolean;
-  protected services: Service[] = [];
-  protected views: View[] = [];
 
-  constructor(args: AppArgs) {
-    super();
+  constructor(args: CoreArgs) {
     this.isProduction = args.isProduction;
 
     let mongoDbUri: string;
@@ -32,22 +27,13 @@ export default class App {
 
     this.express = express();
 
+    this.initNodes();
+
     // Add middleware to parse the post data of the body (handle form-data).
     // Support both JSON-encoded (json()) and url encoded (urlencoded()) bodies
     // https://stackoverflow.com/a/12008719
     this.express.use(express.json())
     this.express.use(express.urlencoded())
-
-    // Init services
-
-    // Init views
-    // This should be placed right here in code right after express init,
-    // because... i don't know why
-    this.viewBuilder = new ViewBuilder({
-      express: this.express,
-      viewSpecs: VIEW_SPECS
-    }); 
-
     this.express.use(cors());
 
     if (!this.isProduction) {
@@ -89,13 +75,23 @@ export default class App {
         });
       }
     });
-
-    this.isReady = true;
   }
 
   run(port: number): void {
     this.express.listen(port, () => {
       console.log(`[App] Server is running at http://localhost:${port}`);
     });
+  }
+
+  protected initNodes(): void {
+    let filesView: FilesView = new FilesView();
+    this.express.get(filesView.ROUTE, filesView.get);
+    this.express.post(filesView.ROUTE, filesView.post);
+
+    let filesStringIdView: FilesStringIdView = new FilesStringIdView();
+    this.express.get(filesStringIdView.ROUTE, filesStringIdView.get);
+
+    let shareView: ShareView = new ShareView();
+    this.express.get(shareView.ROUTE, filesStringIdView.get);
   }
 }

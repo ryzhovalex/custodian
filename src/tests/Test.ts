@@ -1,3 +1,1 @@
-class Test {}
-
-export = Test;
+export default class Test {}

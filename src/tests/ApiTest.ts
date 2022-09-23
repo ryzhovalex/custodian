@@ -1,25 +1,25 @@
 import Test from "./Test";
-import AppService from "../App";
 import {expect} from "chai";
 import chaiHttp from "chai-http";
 import * as _chai from "chai";
+import Core from "../Core";
 
 _chai.should();
 _chai.expect;
 _chai.use(chaiHttp);
 
 class ApiTest extends Test {
-  appService: AppService;
+  core: Core;
 
   before() {
-    this.appService = new AppService({
+    this.core = new Core({
       isProduction: false,
       hasToMaintainDatabaseConnection: false
     });
   }
 
   after() {
-    this.appService.mongo.disconnect();
+    this.core.mongo.disconnect();
   }
 }
 
