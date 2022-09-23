@@ -14,8 +14,8 @@
     "url": "git+https://github.com/ryzhovalex/custodian.gitmk.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Alexander Ryzhov",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ryzhovalex/custodian.gitmk/issues"
   },
