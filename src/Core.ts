@@ -5,6 +5,7 @@ import Mongo, { DEFAULT_MONGODB_URI } from './Mongo';
 import { FilesStringIdView, FilesView, ShareView, UPLOAD_DIR } from './file/File';
 import path from 'path';
 import multer from "multer";
+import fs from "fs";
 
 export interface CoreArgs {
   isProduction: boolean;
@@ -96,6 +97,9 @@ export default class Core {
     // https://github.com/expressjs/multer/issues/439#issuecomment-276255945
     const storage = multer.diskStorage({
       destination: (request, file, cb) => {
+        // Create dir if not exist
+        // https://stackoverflow.com/a/59653876
+        fs.mkdirSync(UPLOAD_DIR, {recursive: true});
         cb(null, UPLOAD_DIR);
       },
       filename: (request, file, cb) => {
