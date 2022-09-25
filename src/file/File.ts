@@ -1,34 +1,36 @@
 import { Request, Response } from "express";
 import path from "path";
-import mongoose, {Schema, Document} from "mongoose";
-import ApiModel from "../ApiModel";
+import mongoose, {Schema, Document, ObjectId} from "mongoose";
+import ApiModel, { checkApiModel } from "../ApiModel";
 import getAppDir from "../tools/getAppDir";
 import { nextTick } from "process";
+import { userInfo } from "os";
 
-export const UPLOAD_DIR: string = "/home/alex/projects/custodian/uploads";
+export const UPLOAD_DIR: string =
+  process.env.CUSTODIAN_UPLOAD_DIR || path.join(__dirname, "uploads");
 
 export interface File extends ApiModel {
   name: string;
-  stringId: string;
 }
 
-export interface FileCell extends Document {
+export interface FileDocument extends Document {
+  type: string;
   name: string;
-  stringId: string;
   internalFilename: string;
 }
 
 const FileSchema: Schema = new Schema({
+  type: {type: String, required: true},
   name: {type: String, required: true},
-  stringId: {type: String, required: true},
   internalFilename: {type: String, required: true}
 });
 
+export const FileMapping = mongoose.model("File", FileSchema);
+
 export function checkFile(object: any): boolean {
   return (
-    typeof(object.name) === "string"
-    && typeof(object.stringId) === "string"
-    && object.type === "file"
+    checkApiModel(object)
+    && typeof(object.name) === "string"
   );
 }
 
@@ -47,17 +49,19 @@ export interface MultipartParsedFile {
 export class FileHub {
   constructor() {}
 
-  getAllFiles(): {files: File[]} {
-    return {
-      files: [
-        {
-          id: 1,
-          type: "file",
-          name: "sample",
-          stringId: "kjsdkvnosjidfpw"
+  async getAllFiles(): Promise<{files: File[]}> {
+    return FileMapping.find({})
+      .then((documents) => {
+        let files: File[] = [];
+
+        for (let fileDocument of documents) {
+          files.push(this.parseFile(fileDocument));
         }
-      ]
-    }
+
+        return {
+          files: files
+        }
+      }); 
   }
 
   /**
@@ -66,65 +70,89 @@ export class FileHub {
    * File data is generally parsed by multipart parser, here formatted data
    * according should be sent. 
    */
-  addFile(multipartParsedFile: MultipartParsedFile): File {
-    /**
-     * TODO:
-     * Add special handling for internal file name "sample" for test purposes
-     */
-    return {
-      id: 1,
+  async addFile(multipartParsedFile: MultipartParsedFile): Promise<File> {
+    return FileMapping.create({
       type: "file",
-      name: "sample",
-      stringId: "kjsdkvnosjidfpw"
-    }
+      name: multipartParsedFile.name,
+      internalFilename: multipartParsedFile.internalFilename
+    })
+      .then((data) => {
+        return this.parseFile(data);
+      })
+      .catch((error: Error) => {
+        throw error;
+      });
   } 
 
-  getFile(stringId: string): File {
-    return {
-      id: 1,
-      type: "file",
-      name: "sample",
-      stringId: "kjsdkvnosjidfpw"
+  async getFile(id: string): Promise<File> {
+    return this.getFileDocument(id)
+      .then((document) => {
+        return this.parseFile(document);
+      })
+      .catch((error: Error) => {
+        throw error;
+      });
+  }
+
+  protected async getFileDocument(id: string): Promise<any> {
+    let doc = FileMapping.findOne({ id: id });
+    if (doc !== null) {
+      return doc;
+    } else {
+      throw Error(`No document with id ${id}`);
     }
   }
 
-  getFileObjectPath(stringId: string): string {
-    return path.join(
-      UPLOAD_DIR, "sample.jpg"
-    );
+  async getFileObjectPath(id: string): Promise<string> {
+    return this.getFileDocument(id)
+      .then((document: any) => {
+        return path.join(UPLOAD_DIR, document.internalFilename);
+      })
+      .catch((error: Error) => {
+        throw error;
+      });
+  }
+
+  protected parseFile(document: any): File {
+    return {
+      id: document._id.toString(),
+      type: document.type,
+      name: document.name
+    }
   }
 }
 
 export class FilesView {
   ROUTE: string = "/files";
 
-  get(request: any, response: any) {
+  async get(request: any, response: any) {
     let fileHub: FileHub = new FileHub();
-    response.send(fileHub.getAllFiles());
+    response.json(await fileHub.getAllFiles());
   }
 
-  post(request: any, response: any) {
+  async post(request: any, response: any) {
     let fileHub: FileHub = new FileHub();
-    response.send(fileHub.getFile("sample"));
+    let file: File = await fileHub.getFile(request.params.id);
+    response.json(file);
   }
 }
 
 export class FilesStringIdView {
-  ROUTE: string = "/files/:stringId";
+  ROUTE: string = "/files/:id";
 
-  get(request: any, response: any) {
+  async get(request: any, response: any) {
     let fileHub: FileHub = new FileHub();
-    response.send(fileHub.getFile("sample"));
+    response.json(await fileHub.getFile(request.params.id));
   }
 }
 
 export class ShareView {
-  ROUTE: string = "/share/:stringId";
+  ROUTE: string = "/share/:id";
 
-  get(request: Request, response: Response) {
+  async get(request: Request, response: Response) {
     let fileHub: FileHub = new FileHub();
-    let fileObjectPath: string = fileHub.getFileObjectPath(
-      request.params.stringId
+    let fileObjectPath: string = await fileHub.getFileObjectPath(
+      request.params.id
     );
 
     response.sendFile(
@@ -132,7 +160,7 @@ export class ShareView {
       (error: any) => {
         if (error) {
           console.log(error);
-          response.send(error);
+          response.json(error);
         } else {
           console.log("[ShareView] File sent", fileObjectPath);
         }

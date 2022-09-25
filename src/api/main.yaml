@@ -26,11 +26,11 @@ paths:
             application/json:
               schema:
                 $ref: "file.yaml#/file"
-  /files/{stringId}:
+  /files/{id}:
     get:
       summary: Get file by its string identifier
       parameters:
-        - $ref: "file.yaml#/stringIdPath"
+        - $ref: "common.yaml#/idPath"
       responses:
         "200":
           description: OK
@@ -38,11 +38,11 @@ paths:
             application/json:
               schema:
                 $ref: "file.yaml#/file"
-  /share/{stringId}:
+  /share/{id}:
     get:
       summary: Get shared file object by string identifier
       parameters:
-        - $ref: "file.yaml#/stringIdPath"
+        - $ref: "common.yaml#/idPath"
       responses:
         "200":
           description: OK

@@ -25,8 +25,6 @@ file:
       $ref: "common.yaml#/type"
     name:
       $ref: "#/name"
-    stringId:
-      $ref: "#/stringId"
 filesInner:
   type: array
   items:
@@ -43,14 +41,6 @@ newFileRequestBody:
     multipart/form-data:
       schema:
         $ref: "file.yaml#/newFileMultipartObject"
-
-stringIdPath:
-  in: path
-  required: true
-  name: stringId
-  description: String identifier of the file
-  schema:
-    $ref: "#/stringId"
 
 
 

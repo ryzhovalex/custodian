@@ -10,11 +10,13 @@ class Mongo {
    */
 
   constructor(
-      public uri: string,
+      protected uri: string,
       protected isProduction: boolean,
-      public hasToMaintainConnection: boolean
+      public hasToMaintainConnection: boolean,
+      protected hasToAutoConnectDatabase: boolean
     ) {
-    this.connect();
+    if (hasToAutoConnectDatabase)  
+      this.connect();
 
     // Maintain connection
     if (this.hasToMaintainConnection) {
@@ -47,6 +49,16 @@ class Mongo {
         console.error(
           "[Mongo] Error during disconnecting from mongodb: ", error);
       });
+  }
+
+  /**
+   * Removes all entries for given mapping.
+   * 
+   * Useful for unit-tests isolation.
+   */
+  dropMapping(mapping: mongoose.Model<any>) {
+    console.log("[Mongo] Drop mapping", mapping);
+    mapping.remove({});
   }
 }
 

@@ -10,6 +10,7 @@ export interface CoreArgs {
   isProduction: boolean;
   mongoDbUri?: string;
   hasToMaintainDatabaseConnection?: boolean;
+  hasToAutoConnectDatabase?: boolean;
 }
 
 export default class Core {
@@ -48,8 +49,12 @@ export default class Core {
     let hasToMaintainDatabaseConnection: boolean =
       args.hasToMaintainDatabaseConnection === undefined
         ? true : args.hasToMaintainDatabaseConnection;
+    let hasToAutoConnectDatabase: boolean =
+      args.hasToAutoConnectDatabase === undefined
+        ? true : args.hasToAutoConnectDatabase;
     this.mongo = new Mongo(
-      mongoDbUri, this.isProduction, hasToMaintainDatabaseConnection
+      mongoDbUri, this.isProduction, hasToMaintainDatabaseConnection,
+      hasToAutoConnectDatabase
     );
 
     // Catch error and forward to error handler

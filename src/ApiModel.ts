@@ -1,12 +1,12 @@
 export default interface ApiModel {
-  id: number;
+  id: string;
   type: string;
 }
 
-export function checkApi(object: any): boolean {
+export function checkApiModel(object: any): boolean {
   return (
     object
-    && typeof(object.id) === "number"
+    && typeof(object.id) === "string"
     && typeof(object.type) === "string"
   )
 }

@@ -1,6 +1,14 @@
 id:
-  type: integer
-  example: 1
+  type: string
+  example: "e12390953jf"
 type:
   type: string
   example: file
+
+idPath:
+  in: path
+  required: true
+  name: id
+  description: String identifier of the file
+  schema:
+    $ref: "#/id"

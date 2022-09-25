@@ -5,7 +5,7 @@ function makeid(): string {
    * Source:
    *    - https://stackoverflow.com/a/1349426
    */
-  const length: number = 25;
+  const length: number = 15;
 
   let result = '';
   let characters =
@@ -15,6 +15,11 @@ function makeid(): string {
   for (let i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
+
+  // Append timestamp numbers for 100% uniqueness
+  let timestamp: string = (new Date()).getTime().toString();
+  result += timestamp;
+
   return result;
 }
 

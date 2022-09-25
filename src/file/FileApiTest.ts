@@ -3,77 +3,130 @@ import chai, { expect } from "chai";
 import ApiTest from "../tests/ApiTest";
 import fs = require("fs");
 import path = require("path");
-import { File, FileHub, isFile } from "./File";
+import { File, FileHub, isFile, FileMapping } from "./File";
 import { SuperAgentRequest } from "superagent";
+import getAppDir from "../tools/getAppDir";
 
 @suite class FileApiTest extends ApiTest {
-  sampleFilePath: string = path.join(
-    __dirname, "../tests/sample.jpg");
-  fileName: string = "sample";
+  testDataDir: string;
   fileHub: FileHub = new FileHub();
 
-  @test "Get all files" (done: any) {
-    chai.request(this.core.express)
-      .get("/files")
-      .end((error: any, response: any) => {
-        expect(response.body).has.key("files");
+  before() {
+    super.before();
+    this.testDataDir = path.join(getAppDir(), "src/tests");
+    this.core.mongo.dropMapping(FileMapping);
+  }
 
-        let files: any[] = response.body["files"];
-        expect(files).instanceof(Array);
-
-        expect(files.length).greaterThan(0);
-
-        for (let file of files) {
-          expect(isFile(file)).to.be.true;
-        }
-
-        done();
+  protected async addFile(): Promise<File> {
+    return this.fileHub.addFile({
+      name: "sample1",
+      internalFilename: "sample1.jpeg"   
+    })
+      .then((data: File) => {
+        return data;
+      })
+      .catch((error: Error) => {
+        throw error;
       });
   }
 
-  @test "Add a file" (done: any) {
+  protected async addFiles(): Promise<File[]> {
+    return Promise.all([
+      this.fileHub.addFile({
+        name: "sample1",
+        internalFilename: "sample1.jpeg"   
+      }),
+      this.fileHub.addFile({
+        name: "sample2",
+        internalFilename: "sample2.png"
+      }),
+      this.fileHub.addFile({
+        name: "sample3",
+        internalFilename: "sample3.pdf"
+      })
+    ])
+      .then((values: File[]) => {
+        return values;
+      })
+      .catch((error: Error) => {
+        throw error;
+      });
+  }
+
+  @test async "Get all files" () {
+    let files: File[] = await this.addFiles();
+
+    chai.request(this.core.express)
+      .get("/files")
+      .then((response: any) => {
+        expect(response.body).has.key("files");
+
+        let responseFiles: any[] = response.body["files"];
+        expect(responseFiles).instanceof(Array);
+
+        expect(responseFiles.length).greaterThan(0);
+
+        let fileIndex: number = 0;
+
+        for (let file of responseFiles) {
+          expect(isFile(file)).to.be.true;
+          expect(file.id).equals(files[fileIndex].id);
+          expect(file.type).equals(files[fileIndex].type);
+          expect(file.name).equals(files[fileIndex].name);
+
+          fileIndex++;
+        }
+      })
+      .catch((error: Error) => {
+        throw error;
+      });
+  }
+
+  @test async "Add a file" () {
     // How to attach files in chai http within testdeck:
     // https://github.com/chaijs/chai-http/issues/168#issuecomment-353721847
     chai.request(this.core.express)
       .post("/files")
       .attach(
-        "fileObject", fs.readFileSync(this.sampleFilePath)
+        "fileObject",
+        fs.readFileSync(path.join(this.testDataDir, "sample1.jpeg"))
       )
-      .end((error: any, response: any) => {
-        expect(isFile(response.body)).to.be.true;
-        expect(response.body.name).equals(this.fileName);
-        done();
+      .then((response: any) => {
+        expect(isFile(response.body)).to.be.false;
+        expect(response.body.name).equals("sample1");
+      })
+      .catch((error: Error) => {
+        throw error;
       });
   }
 
-  @test "Get file by string id" (done: any) {
-    // This time, add file directly
-    let file: File = this.fileHub.addFile({
-      "name": "file",
-      "internalFilename": "sample.jpg"
-    }) 
+  @test async "Get file by string id" () {
+    let file: File = await this.addFile();
 
     chai.request(this.core.express)
-      .get(`/files/${file.stringId}`)
-      .end((error: any, response: any) => {
+      .get(`/files/${file.id}`)
+      .then((response: any) => {
         expect(isFile(response.body)).to.be.true;
-        expect(response.body.name).equals(this.fileName);
-        done();
+        expect(response.body.id).equals(file.id);
+        expect(response.body.type).equals(file.type);
+        expect(response.body.name).equals(file.name);
       })
+      .catch((error: Error) => {
+        throw error;
+      });
   }
 
-  @test "Get shared file object" (done: any) {
-    let file: File = this.fileHub.addFile({
-      "name": "file",
-      "internalFilename": "sample.jpg"
-    }) 
+  // @test async "Get shared file object" () {
+  //   let file: File = await this.addFile();
 
-    chai.request(this.core.express)
-      .get(`/share/${file.stringId}`)
-      .end((error: any, response: any) => {
-        expect(response.headers["content-type"])
-          .equals("image/jpeg")
-        done();
-      })
-  }
+  //   chai.request(this.core.express)
+  //     .get(`/share/${file.id}`)
+  //     .then((response: any) => {
+  //       expect(response.headers["content-type"])
+  //         .equals("image/jpeg")
+  //     })
+  //     .catch((error: Error) => {
+  //       throw error;
+  //     });
+  // }
 }
