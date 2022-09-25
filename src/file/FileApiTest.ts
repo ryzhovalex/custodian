@@ -3,20 +3,23 @@ import chai, { expect } from "chai";
 import ApiTest from "../tests/ApiTest";
 import fs = require("fs");
 import path = require("path");
-import { File, isFile } from "./File";
+import { File, FileHub, isFile } from "./File";
 import { SuperAgentRequest } from "superagent";
 
 @suite class FileApiTest extends ApiTest {
   sampleFilePath: string = path.join(
     __dirname, "../tests/sample.jpg");
   fileName: string = "sample";
+  fileHub: FileHub = new FileHub();
 
   @test "Get all files" (done: any) {
     chai.request(this.core.express)
       .get("/files")
       .end((error: any, response: any) => {
         expect(response.body).has.key("files");
+
         let files: any[] = response.body["files"];
+        expect(files).instanceof(Array);
 
         expect(files.length).greaterThan(0);
 
@@ -34,7 +37,7 @@ import { SuperAgentRequest } from "superagent";
     chai.request(this.core.express)
       .post("/files")
       .attach(
-        "fileObject", fs.readFileSync(this.sampleFilePath), this.fileName
+        "fileObject", fs.readFileSync(this.sampleFilePath)
       )
       .end((error: any, response: any) => {
         expect(isFile(response.body)).to.be.true;
@@ -43,29 +46,34 @@ import { SuperAgentRequest } from "superagent";
       });
   }
 
-  @test "Add a file, then get it" (done: any) {
-    let fileName: string = "sample";
+  @test "Get file by string id" (done: any) {
+    // This time, add file directly
+    let file: File = this.fileHub.addFile({
+      "name": "file",
+      "internalFilename": "sample.jpg"
+    }) 
 
     chai.request(this.core.express)
-      .post("/files")
-      .attach("fileObject", fs.readFileSync(this.sampleFilePath), fileName)
+      .get(`/files/${file.stringId}`)
       .end((error: any, response: any) => {
         expect(isFile(response.body)).to.be.true;
-        expect(response.body.name).equals(fileName);
-        this.getFilesStringId(response.body.stringId)
-          .end((response: any) => {
-            expect(isFile(response.body)).to.be.true;
-            expect(response.body.name).equals(fileName);
-            done();
-          });
-      });
+        expect(response.body.name).equals(this.fileName);
+        done();
+      })
   }
 
-  @test "Get file by string id" (done: any) {
-  }
+  @test "Get shared file object" (done: any) {
+    let file: File = this.fileHub.addFile({
+      "name": "file",
+      "internalFilename": "sample.jpg"
+    }) 
 
-  protected getFilesStringId(stringId: string): SuperAgentRequest {
-    return chai.request(this.core.express)
-      .get(`/files/${stringId}`)
+    chai.request(this.core.express)
+      .get(`/share/${file.stringId}`)
+      .end((error: any, response: any) => {
+        expect(response.headers["content-type"])
+          .equals("image/jpeg")
+        done();
+      })
   }
 }

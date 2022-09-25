@@ -31,7 +31,7 @@ class Mongo {
     mongoose
       .connect(this.uri)
       .then(() => {
-        console.info(`[Mongo] Connected to ${this.uri}`);
+        console.info(`[Mongo] Connected`);
       })
       .catch((error: any) => {
         console.error("[Mongo] Error connection to mongodb: ", error);
@@ -41,7 +41,7 @@ class Mongo {
   disconnect() {
     mongoose.disconnect()
       .then(() => {
-        console.info(`[Mongo] Disconnected from ${this.uri}`);
+        console.info(`[Mongo] Disconnected`);
       })
       .catch((error: any) => {
         console.error(

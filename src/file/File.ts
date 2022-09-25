@@ -1,11 +1,13 @@
 import { Request, Response } from "express";
-import Api, { checkApi } from "../Api";
 import path from "path";
 import mongoose, {Schema, Document} from "mongoose";
+import ApiModel from "../ApiModel";
+import getAppDir from "../tools/getAppDir";
+import { nextTick } from "process";
 
-export const UPLOAD_DIR: string = "uploads/"
+export const UPLOAD_DIR: string = "/home/alex/projects/custodian/uploads";
 
-export interface FileApi extends Api {
+export interface File extends ApiModel {
   name: string;
   stringId: string;
 }
@@ -24,8 +26,7 @@ const FileSchema: Schema = new Schema({
 
 export function checkFile(object: any): boolean {
   return (
-    checkApi(object)
-    && typeof(object.name) === "string"
+    typeof(object.name) === "string"
     && typeof(object.stringId) === "string"
     && object.type === "file"
   );
@@ -35,19 +36,41 @@ export function isFile(object: any): object is File {
   return checkFile(object);
 }
 
+/**
+ * File data after multipart parsing and saving stage.
+ */
+export interface MultipartParsedFile {
+  name: string;
+  internalFilename: string;
+}
+
 export class FileHub {
-  getAllFiles(): FileApi[] {
-    return [
-      {
-        id: 1,
-        type: "file",
-        name: "sample",
-        stringId: "kjsdkvnosjidfpw"
-      }
-    ]
+  constructor() {}
+
+  getAllFiles(): {files: File[]} {
+    return {
+      files: [
+        {
+          id: 1,
+          type: "file",
+          name: "sample",
+          stringId: "kjsdkvnosjidfpw"
+        }
+      ]
+    }
   }
 
-  addFile(requestBody: any): FileApi {
+  /**
+   * Adds a file.
+   * 
+   * File data is generally parsed by multipart parser, here formatted data
+   * according should be sent. 
+   */
+  addFile(multipartParsedFile: MultipartParsedFile): File {
+    /**
+     * TODO:
+     * Add special handling for internal file name "sample" for test purposes
+     */
     return {
       id: 1,
       type: "file",
@@ -56,7 +79,7 @@ export class FileHub {
     }
   } 
 
-  getFile(stringId: string): FileApi {
+  getFile(stringId: string): File {
     return {
       id: 1,
       type: "file",
@@ -66,46 +89,53 @@ export class FileHub {
   }
 
   getFileObjectPath(stringId: string): string {
-    return path.join(UPLOAD_DIR, "0afe69f003f208a7c1d7a5a2ea18c416");
+    return path.join(
+      UPLOAD_DIR, "sample.jpg"
+    );
   }
 }
 
 export class FilesView {
   ROUTE: string = "/files";
-  fileHub: FileHub;
-
-  constructor() {
-    this.fileHub = new FileHub();
-  }
 
   get(request: any, response: any) {
-    response.send(this.fileHub.getAllFiles())
+    let fileHub: FileHub = new FileHub();
+    response.send(fileHub.getAllFiles());
   }
 
   post(request: any, response: any) {
-    response.send(this.fileHub.getFile)
+    let fileHub: FileHub = new FileHub();
+    response.send(fileHub.getFile("sample"));
   }
 }
 
 export class FilesStringIdView {
   ROUTE: string = "/files/:stringId";
-  fileHub: FileHub;
 
   get(request: any, response: any) {
-    response.send({"message": "hello"})
+    let fileHub: FileHub = new FileHub();
+    response.send(fileHub.getFile("sample"));
   }
 }
 
 export class ShareView {
   ROUTE: string = "/share/:stringId";
-  fileHub: FileHub;
-
-  constructor() {
-    this.fileHub = new FileHub();
-  }
 
   get(request: Request, response: Response) {
-    console.log(request.path);
-    response.sendFile(this.fileHub.getFileObjectPath(request.path));
+    let fileHub: FileHub = new FileHub();
+    let fileObjectPath: string = fileHub.getFileObjectPath(
+      request.params.stringId
+    );
+
+    response.sendFile(
+      fileObjectPath,
+      (error: any) => {
+        if (error) {
+          console.log(error);
+          response.send(error);
+        } else {
+          console.log("[ShareView] File sent", fileObjectPath);
+        }
+      });
   }
 }

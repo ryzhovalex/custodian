@@ -1,4 +1,4 @@
-export default interface Api {
+export default interface ApiModel {
   id: number;
   type: string;
 }

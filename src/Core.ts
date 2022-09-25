@@ -2,7 +2,9 @@ import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import errorhandler from 'errorhandler';
 import Mongo from './Mongo';
-import { FilesStringIdView, FilesView, ShareView } from './file/File';
+import { FilesStringIdView, FilesView, ShareView, UPLOAD_DIR } from './file/File';
+import path from 'path';
+import multer from "multer";
 
 export interface CoreArgs {
   isProduction: boolean;
@@ -16,6 +18,9 @@ export default class Core {
   protected isProduction: boolean;
 
   constructor(args: CoreArgs) {
+    // Move out from src/ to project root
+    process.env["EXPRESS_APP_DIR"] = path.dirname(__dirname);
+
     this.isProduction = args.isProduction;
 
     let mongoDbUri: string;
@@ -85,13 +90,29 @@ export default class Core {
 
   protected initNodes(): void {
     let filesView: FilesView = new FilesView();
+
+    // Copy original file name and extension uploaded
+    // https://github.com/expressjs/multer/issues/439#issuecomment-276255945
+    const storage = multer.diskStorage({
+      destination: (request, file, cb) => {
+        cb(null, UPLOAD_DIR);
+      },
+      filename: (request, file, cb) => {
+        console.log(file)
+        cb(null, file.originalname);
+      }
+    });
+    const upload = multer({storage: storage});
+
     this.express.get(filesView.ROUTE, filesView.get);
-    this.express.post(filesView.ROUTE, filesView.post);
+    this.express.post(
+      filesView.ROUTE, upload.single("fileObject"), filesView.post
+    );
 
     let filesStringIdView: FilesStringIdView = new FilesStringIdView();
     this.express.get(filesStringIdView.ROUTE, filesStringIdView.get);
 
     let shareView: ShareView = new ShareView();
-    this.express.get(shareView.ROUTE, filesStringIdView.get);
+    this.express.get(shareView.ROUTE, shareView.get);
   }
 }
