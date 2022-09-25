@@ -39,4 +39,4 @@ node_modules
 dist/
 
 .nyc_output/
-uploads/
+**/uploads

@@ -1,7 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import errorhandler from 'errorhandler';
-import Mongo from './Mongo';
+import Mongo, { DEFAULT_MONGODB_URI } from './Mongo';
 import { FilesStringIdView, FilesView, ShareView, UPLOAD_DIR } from './file/File';
 import path from 'path';
 import multer from "multer";
@@ -10,7 +10,6 @@ export interface CoreArgs {
   isProduction: boolean;
   mongoDbUri?: string;
   hasToMaintainDatabaseConnection?: boolean;
-  hasToAutoConnectDatabase?: boolean;
 }
 
 export default class Core {
@@ -26,7 +25,7 @@ export default class Core {
 
     let mongoDbUri: string;
     if (args.mongoDbUri === undefined) {
-      mongoDbUri = "mongodb://localhost:27017/custodian"
+      mongoDbUri = DEFAULT_MONGODB_URI;
     } else {
       mongoDbUri = args.mongoDbUri;
     }
@@ -49,12 +48,8 @@ export default class Core {
     let hasToMaintainDatabaseConnection: boolean =
       args.hasToMaintainDatabaseConnection === undefined
         ? true : args.hasToMaintainDatabaseConnection;
-    let hasToAutoConnectDatabase: boolean =
-      args.hasToAutoConnectDatabase === undefined
-        ? true : args.hasToAutoConnectDatabase;
     this.mongo = new Mongo(
-      mongoDbUri, this.isProduction, hasToMaintainDatabaseConnection,
-      hasToAutoConnectDatabase
+      mongoDbUri, this.isProduction, hasToMaintainDatabaseConnection
     );
 
     // Catch error and forward to error handler
@@ -87,7 +82,8 @@ export default class Core {
     });
   }
 
-  run(port: number): void {
+  async run(port: number) {
+    await this.mongo.connect;
     this.express.listen(port, () => {
       console.log(`[App] Server is running at http://localhost:${port}`);
     });
@@ -103,7 +99,6 @@ export default class Core {
         cb(null, UPLOAD_DIR);
       },
       filename: (request, file, cb) => {
-        console.log(file)
         cb(null, file.originalname);
       }
     });

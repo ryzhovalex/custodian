@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 
-class Mongo {
+export const DEFAULT_MONGODB_URI: string =
+  "mongodb://localhost:27017/custodian";
+
+export default class Mongo {
   /**
    * Model representing mongodb database interactions.
    * 
@@ -10,14 +13,10 @@ class Mongo {
    */
 
   constructor(
-      protected uri: string,
+      public uri: string,
       protected isProduction: boolean,
       public hasToMaintainConnection: boolean,
-      protected hasToAutoConnectDatabase: boolean
     ) {
-    if (hasToAutoConnectDatabase)  
-      this.connect();
-
     // Maintain connection
     if (this.hasToMaintainConnection) {
       mongoose.connection.on("disconnected", this.connect);
@@ -28,9 +27,9 @@ class Mongo {
     }
   }
 
-  connect() {
+  async connect(): Promise<any> {
     console.info(`[Mongo] Connecting ${this.uri}`);
-    mongoose
+    return mongoose
       .connect(this.uri)
       .then(() => {
         console.info(`[Mongo] Connected`);
@@ -40,8 +39,8 @@ class Mongo {
       });
   }
 
-  disconnect() {
-    mongoose.disconnect()
+  async disconnect(): Promise<any> {
+    return mongoose.disconnect()
       .then(() => {
         console.info(`[Mongo] Disconnected`);
       })
@@ -56,10 +55,14 @@ class Mongo {
    * 
    * Useful for unit-tests isolation.
    */
-  dropMapping(mapping: mongoose.Model<any>) {
+  async dropMapping(mapping: mongoose.Model<any>): Promise<any> {
     console.log("[Mongo] Drop mapping", mapping);
-    mapping.remove({});
+    mapping.deleteMany({})
+      .then((value: any) => {
+        console.log("[Mongo] Collection", mapping, "dropped");
+      })
+      .catch((error: Error) => {
+        throw error;
+      });
   }
 }
-
-export = Mongo;

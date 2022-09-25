@@ -8,16 +8,15 @@ import makeid from "./makeid";
 _chai.should();
 _chai.expect;
 
+// @suite class makeidTest extends Test {
+//   makeid: () => string = makeid;
+//   out: string;
 
-@suite class makeidTest extends Test {
-  makeid: () => string = makeid;
-  out: string;
+//   before() {
+//     this.out = makeid();
+//   }
 
-  before() {
-    this.out = makeid();
-  }
-
-  @test "Output is string" () {
-    expect(this.out).to.be.string;
-  }
-}
+//   @test "Output is string" () {
+//     expect(this.out).to.be.string;
+//   }
+// }

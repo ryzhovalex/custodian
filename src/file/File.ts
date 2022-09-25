@@ -15,14 +15,13 @@ export interface File extends ApiModel {
 
 export interface FileDocument extends Document {
   type: string;
+  // name is the same as filename of actual object in file system
   name: string;
-  internalFilename: string;
 }
 
 const FileSchema: Schema = new Schema({
   type: {type: String, required: true},
   name: {type: String, required: true},
-  internalFilename: {type: String, required: true}
 });
 
 export const FileMapping = mongoose.model("File", FileSchema);
@@ -43,7 +42,6 @@ export function isFile(object: any): object is File {
  */
 export interface MultipartParsedFile {
   name: string;
-  internalFilename: string;
 }
 
 export class FileHub {
@@ -73,8 +71,7 @@ export class FileHub {
   async addFile(multipartParsedFile: MultipartParsedFile): Promise<File> {
     return FileMapping.create({
       type: "file",
-      name: multipartParsedFile.name,
-      internalFilename: multipartParsedFile.internalFilename
+      name: multipartParsedFile.name
     })
       .then((data) => {
         return this.parseFile(data);
@@ -95,18 +92,21 @@ export class FileHub {
   }
 
   protected async getFileDocument(id: string): Promise<any> {
-    let doc = FileMapping.findOne({ id: id });
-    if (doc !== null) {
-      return doc;
-    } else {
-      throw Error(`No document with id ${id}`);
-    }
+    return FileMapping.findOne({ id: id })
+      .then((doc: any) => {
+        if (doc === null)
+          throw Error(`No document with id ${id}`);
+        return doc;
+      })
+      .catch((error: Error) => {
+        throw error;
+      });
   }
 
   async getFileObjectPath(id: string): Promise<string> {
     return this.getFileDocument(id)
       .then((document: any) => {
-        return path.join(UPLOAD_DIR, document.internalFilename);
+        return path.join(UPLOAD_DIR, document.name);
       })
       .catch((error: Error) => {
         throw error;
@@ -114,6 +114,8 @@ export class FileHub {
   }
 
   protected parseFile(document: any): File {
+    if (document === null)
+      throw Error("[FileHub.Error] Given document is null");
     return {
       id: document._id.toString(),
       type: document.type,
@@ -132,7 +134,9 @@ export class FilesView {
 
   async post(request: any, response: any) {
     let fileHub: FileHub = new FileHub();
-    let file: File = await fileHub.getFile(request.params.id);
+    let file: File = await fileHub.addFile({
+      name: request.file.filename
+    });
     response.json(file);
   }
 }

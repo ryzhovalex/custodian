@@ -11,8 +11,6 @@ fileObject:
 newFileMultipartObject:
   type: object
   properties:
-    name:
-      $ref: "#/name"
     fileObject:
       $ref: "#/fileObject"
 
