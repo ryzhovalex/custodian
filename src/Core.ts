@@ -84,9 +84,9 @@ export default class Core {
   }
 
   async run(port: number) {
-    await this.mongo.connect;
+    await this.mongo.connect();
     this.express.listen(port, () => {
-      console.log(`[App] Server is running at http://localhost:${port}`);
+      console.log(`[Core] Server is running at http://localhost:${port}`);
     });
   }
 
@@ -110,7 +110,9 @@ export default class Core {
 
     this.express.get(filesView.ROUTE, filesView.get);
     this.express.post(
-      filesView.ROUTE, upload.single("fileObject"), filesView.post
+      filesView.ROUTE,
+      upload.single("fileObject"),
+      filesView.post
     );
 
     let filesStringIdView: FilesStringIdView = new FilesStringIdView();

@@ -134,6 +134,7 @@ export class FilesView {
 
   async post(request: any, response: any) {
     let fileHub: FileHub = new FileHub();
+    console.log("[FilesView] Accept file", request.file)
     let file: File = await fileHub.addFile({
       name: request.file.filename
     });
