@@ -40,3 +40,4 @@ dist/
 
 .nyc_output/
 **/uploads
+**/mongo-data
