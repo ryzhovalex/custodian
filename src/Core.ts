@@ -33,14 +33,14 @@ export default class Core {
 
     this.express = express();
 
-    this.initNodes();
-
     // Add middleware to parse the post data of the body (handle form-data).
     // Support both JSON-encoded (json()) and url encoded (urlencoded()) bodies
     // https://stackoverflow.com/a/12008719
     this.express.use(express.json())
     this.express.use(express.urlencoded())
     this.express.use(cors());
+
+    this.initNodes();
 
     if (!this.isProduction) {
       this.express.use(errorhandler());
@@ -114,6 +114,7 @@ export default class Core {
       upload.single("fileObject"),
       filesView.post
     );
+    this.express.delete(filesView.ROUTE, filesView.delete);
 
     let filesStringIdView: FilesStringIdView = new FilesStringIdView();
     this.express.get(filesStringIdView.ROUTE, filesStringIdView.get);

@@ -137,4 +137,19 @@ import getAppDir from "../tools/getAppDir";
         throw error;
       });
   }
+
+  @test async "Delete all files" () {
+    await this.addFiles();
+
+    return chai.request(this.core.express)
+      .delete("/files")
+      .then(async (response: any) => {
+        let files = await this.fileHub.getAllFiles();
+        expect(files).has.key("files");
+        expect(files.files).to.be.empty;
+      })
+      .catch((error: Error) => {
+        throw error;
+      });
+  }
 }

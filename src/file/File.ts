@@ -63,6 +63,15 @@ export class FileHub {
   }
 
   /**
+   * Deletes all files.
+   */
+  async deleteAllFiles(): Promise<void> {
+    return FileMapping.deleteMany({})
+      .then((result: any) => {})
+      .catch((error: Error) => {throw error;});
+  }
+
+  /**
    * Adds a file.
    * 
    * File data is generally parsed by multipart parser, here formatted data
@@ -92,7 +101,7 @@ export class FileHub {
   }
 
   protected async getFileDocument(id: string): Promise<any> {
-    return FileMapping.findOne({ id: id })
+    return FileMapping.findById(id)
       .then((doc: any) => {
         if (doc === null)
           throw Error(`No document with id ${id}`);
@@ -134,11 +143,18 @@ export class FilesView {
 
   async post(request: any, response: any) {
     let fileHub: FileHub = new FileHub();
-    console.log("[FilesView] Accept file", request.file)
+    console.log("[FilesView] Accept file", request.file);
     let file: File = await fileHub.addFile({
       name: request.file.filename
     });
     response.json(file);
+  }
+
+  async delete(request: any, response: any) {
+    let fileHub: FileHub = new FileHub();
+    console.log("[FileHub] Delete all files");
+    await fileHub.deleteAllFiles();
+    response.json({message: "Done!"});
   }
 }
 

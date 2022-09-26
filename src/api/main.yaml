@@ -26,6 +26,11 @@ paths:
             application/json:
               schema:
                 $ref: "file.yaml#/file"
+    delete:
+      summary: Delete all files
+      responses:
+        "200":
+          description: OK
   /files/{id}:
     get:
       summary: Get file by its string identifier

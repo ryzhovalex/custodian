@@ -5,6 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Custodian integration</title>
+  <script src="{{ url_for('static', filename='main.js') }}" defer></script>
 </head>
 <body>
   <form method="POST" enctype="multipart/form-data">
@@ -12,5 +13,13 @@
     <input type="file" id="file" name="fileObject">
     <input type="submit" value="Upload">
   </form>
+  <h3>Calls</h3>
+  Result message:
+  <span id="call-result" style="font-style: italic;"></span>
+  <div>
+    <button onclick="deleteAllFiles()">
+      Delete all files
+    </button>
+  </div>
 </body>
 </html>
